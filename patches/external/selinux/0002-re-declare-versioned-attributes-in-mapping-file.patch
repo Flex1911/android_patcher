@@ -1,0 +1,82 @@
+From 99c96dec8f11853baa8eb9c632d0424a70fced99 Mon Sep 17 00:00:00 2001
+From: Jeff Vander Stoep <jeffv@google.com>
+Date: Fri, 6 Oct 2017 16:49:16 -0700
+Subject: [PATCH 2/2] (re)declare versioned attributes in mapping file
+
+Public types get versioned for Treble compatibility. The versioned
+attribute is declared in vendor policy. Then a mapping between the
+newer system policy occurs on the system partition. This causes
+on-device compilation to fail in AOSP because the vendor image stays
+static and thus the mapping file references undeclared typeattributes.
+
+This can be solved by declaring, or redeclaring all versioned types
+in the mapping file. Support for this was added to secilc in commit
+fafe4c212bf6c32c3021d7b69bcc0cf219e71608 'libsepol: cil: Add ability
+to redeclare types[attributes]'
+
+Bug: 67092827
+Bug: 37915794
+Test: build and boot aosp_sailfish with new type declared in public
+    policy
+Change-Id: I04a884db6d0eaf42ee189b0669833dd0860b626f
+---
+ libsepol/cil/src/android.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/libsepol/cil/src/android.c b/libsepol/cil/src/android.c
+index 1d80046b..7fade52f 100644
+--- a/libsepol/cil/src/android.c
++++ b/libsepol/cil/src/android.c
+@@ -780,12 +780,14 @@ exit:
+ static int cil_build_mappings_tree(hashtab_key_t k, hashtab_datum_t d, void *args)
+ {
+ 	struct cil_typeattributeset *attrset = NULL;
++	struct cil_typeattribute *typeattr = NULL;
+ 	struct cil_expandtypeattribute *expandattr = NULL;
+ 	struct cil_tree_node *ast_node = NULL;
+ 	struct version_args *verargs = (struct version_args *)args;
+ 	struct cil_tree_node *ast_parent = verargs->db->ast->root;
+ 	char *orig_type = (char *) k;
+ 	struct version_datum *vers_datum = (struct version_datum *) d;
++	char *new_key = __cil_attrib_get_versname(orig_type, verargs->num);
+ 
+ 	if (vers_datum->ast_node->flavor == CIL_TYPEATTRIBUTE) {
+ 		// platform attributes are not versioned
+@@ -794,7 +796,7 @@ static int cil_build_mappings_tree(hashtab_key_t k, hashtab_datum_t d, void *arg
+ 	/* create typeattributeset datum */
+ 	cil_typeattributeset_init(&attrset);
+ 	cil_list_init(&attrset->str_expr, CIL_TYPE);
+-	attrset->attr_str = __cil_attrib_get_versname(orig_type, verargs->num);
++	attrset->attr_str = new_key;
+ 	cil_list_append(attrset->str_expr, CIL_STRING, orig_type);
+ 
+ 	/* create containing tree node */
+@@ -813,7 +815,7 @@ static int cil_build_mappings_tree(hashtab_key_t k, hashtab_datum_t d, void *arg
+ 	/* create expandtypeattribute datum */
+ 	cil_expandtypeattribute_init(&expandattr);
+ 	cil_list_init(&expandattr->attr_strs, CIL_TYPE);
+-	cil_list_append(expandattr->attr_strs, CIL_STRING, __cil_attrib_get_versname(orig_type, verargs->num));
++	cil_list_append(expandattr->attr_strs, CIL_STRING, new_key);
+ 	expandattr->expand = CIL_TRUE;
+ 
+ 	/* create containing tree node */
+@@ -825,6 +827,16 @@ static int cil_build_mappings_tree(hashtab_key_t k, hashtab_datum_t d, void *arg
+ 	ast_parent->cl_tail->next = ast_node;
+ 	ast_parent->cl_tail = ast_node;
+ 
++	/* re)declare typeattribute. */
++	cil_typeattribute_init(&typeattr);
++	typeattr->datum.name = new_key;
++	cil_tree_node_init(&ast_node);
++	ast_node->data = typeattr;
++	ast_node->flavor = CIL_TYPEATTRIBUTE;
++	ast_node->parent = ast_parent;
++	ast_parent->cl_tail->next = ast_node;
++	ast_parent->cl_tail = ast_node;
++
+ 	return SEPOL_OK;
+ }
+ 
+-- 
+2.17.1
+

@@ -1,0 +1,29 @@
+From 168a3e5753b9ce67ac5fabc90aa36fe71a685ca1 Mon Sep 17 00:00:00 2001
+From: Paul Keith <javelinanddart@gmail.com>
+Date: Thu, 15 Feb 2018 21:46:00 +0100
+Subject: [PATCH] soong: Add var for linker shim libs
+
+* To limit security exposure, we're forcing all devices
+  to define shim libs with a TARGET_LD_SHIM_LIBS
+
+Change-Id: Ic8722c42807429f2faa3546316c71c40533ce195
+---
+ android/variable.go | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/android/variable.go b/android/variable.go
+index 77bdda2a..529c97a0 100644
+--- a/android/variable.go
++++ b/android/variable.go
+@@ -167,6 +167,8 @@ type productVariables struct {
+ 	Override_rs_driver *string `json:",omitempty"`
+ 
+ 	DeviceKernelHeaders []string `json:",omitempty"`
++
++	Target_shim_libs *string `json:",omitempty"`
+ }
+ 
+ func boolPtr(v bool) *bool {
+-- 
+2.17.1
+

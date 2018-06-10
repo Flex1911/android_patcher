@@ -1,0 +1,62 @@
+From 7744ba0083e0a9c7e322f20744be838b79bcae20 Mon Sep 17 00:00:00 2001
+From: Jeff Vander Stoep <jeffv@google.com>
+Date: Fri, 6 Oct 2017 17:06:04 -0700
+Subject: [PATCH] Allow redeclaring typeattributes
+
+Allows partners to add a new attribute definition to their public
+policy without causing a compatibility failure with the AOSP system
+image.
+
+Bug: 67092827
+Bug: 37915794
+Test: build and boot aosp_sailfish with new type declared in public
+    policy
+
+Change-Id: I015c26fa7c399423e8a6e7079b5689007d031479
+---
+ Android.mk | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Android.mk b/Android.mk
+index e5b244b5..0e40a75b 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -321,7 +321,7 @@ $(LOCAL_BUILT_MODULE): $(plat_policy.conf) $(HOST_OUT_EXECUTABLES)/checkpolicy \
+ 	$(hide) $(CHECKPOLICY_ASAN_OPTIONS) $(HOST_OUT_EXECUTABLES)/checkpolicy -M -C -c \
+ 		$(POLICYVERS) -o $@ $<
+ 	$(hide) cat $(PRIVATE_ADDITIONAL_CIL_FILES) >> $@
+-	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -M true -G -c $(POLICYVERS) $@ -o /dev/null -f /dev/null
++	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) $@ -o /dev/null -f /dev/null
+ 
+ built_plat_cil := $(LOCAL_BUILT_MODULE)
+ plat_policy.conf :=
+@@ -444,7 +444,7 @@ $(HOST_OUT_EXECUTABLES)/version_policy $(HOST_OUT_EXECUTABLES)/secilc \
+ $(built_plat_cil) $(built_mapping_cil)
+ 	@mkdir -p $(dir $@)
+ 	$(HOST_OUT_EXECUTABLES)/version_policy -b $< -t $(PRIVATE_TGT_POL) -n $(PRIVATE_VERS) -o $@
+-	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -M true -G -N -c $(POLICYVERS) \
++	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -N -c $(POLICYVERS) \
+ 		$(PRIVATE_DEP_CIL_FILES) $@ -o /dev/null -f /dev/null
+ 
+ built_nonplat_cil := $(LOCAL_BUILT_MODULE)
+@@ -466,7 +466,7 @@ $(LOCAL_BUILT_MODULE): PRIVATE_CIL_FILES := \
+ $(built_plat_cil) $(built_mapping_cil) $(built_nonplat_cil)
+ $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/secilc \
+ $(built_plat_cil) $(built_mapping_cil) $(built_nonplat_cil)
+-	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -M true -G -c $(POLICYVERS) \
++	$(hide) $(HOST_OUT_EXECUTABLES)/secilc -m -M true -G -c $(POLICYVERS) \
+ 		$(PRIVATE_CIL_FILES) -o $@ -f /dev/null
+ 
+ built_precompiled_sepolicy := $(LOCAL_BUILT_MODULE)
+@@ -507,7 +507,7 @@ all_cil_files := \
+ $(LOCAL_BUILT_MODULE): PRIVATE_CIL_FILES := $(all_cil_files)
+ $(LOCAL_BUILT_MODULE): $(HOST_OUT_EXECUTABLES)/secilc $(HOST_OUT_EXECUTABLES)/sepolicy-analyze $(all_cil_files)
+ 	@mkdir -p $(dir $@)
+-	$(hide) $< -M true -G -c $(POLICYVERS) $(PRIVATE_CIL_FILES) -o $@.tmp -f /dev/null
++	$(hide) $< -m -M true -G -c $(POLICYVERS) $(PRIVATE_CIL_FILES) -o $@.tmp -f /dev/null
+ 	$(hide) $(HOST_OUT_EXECUTABLES)/sepolicy-analyze $@.tmp permissive > $@.permissivedomains
+ 	$(hide) if [ "$(TARGET_BUILD_VARIANT)" = "user" -a -s $@.permissivedomains ]; then \
+ 		echo "==========" 1>&2; \
+-- 
+2.17.1
+

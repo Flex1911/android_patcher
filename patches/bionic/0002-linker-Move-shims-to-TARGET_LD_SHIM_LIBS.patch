@@ -1,0 +1,133 @@
+From 73baf053fa4fd7496311a2f2df363b0c7ee840f5 Mon Sep 17 00:00:00 2001
+From: Paul Keith <javelinanddart@gmail.com>
+Date: Thu, 15 Feb 2018 21:57:33 +0100
+Subject: [PATCH 2/2] linker: Move shims to TARGET_LD_SHIM_LIBS
+
+* To reduce security exposure, let's set this at compile time,
+  and block off all the code unless the board flag is set
+
+Change-Id: Ieec5f5d9e0f39a798fd48eae037ecffe9502474c
+---
+ libc/bionic/libc_init_common.cpp | 1 -
+ linker/Android.bp                | 3 +++
+ linker/linker.cpp                | 6 ++++++
+ linker/linker.h                  | 2 ++
+ linker/linker_main.cpp           | 8 +++++---
+ 5 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/libc/bionic/libc_init_common.cpp b/libc/bionic/libc_init_common.cpp
+index 883f15880..48fd670a7 100644
+--- a/libc/bionic/libc_init_common.cpp
++++ b/libc/bionic/libc_init_common.cpp
+@@ -259,7 +259,6 @@ static bool __is_unsafe_environment_variable(const char* name) {
+     "LD_ORIGIN_PATH",
+     "LD_PRELOAD",
+     "LD_PROFILE",
+-    "LD_SHIM_LIBS",
+     "LD_SHOW_AUXV",
+     "LD_USE_LOAD_BIAS",
+     "LOCALDOMAIN",
+diff --git a/linker/Android.bp b/linker/Android.bp
+index fda7eb5fa..8bd127573 100644
+--- a/linker/Android.bp
++++ b/linker/Android.bp
+@@ -105,6 +105,9 @@ cc_binary {
+         debuggable: {
+             cppflags: ["-DUSE_LD_CONFIG_FILE"],
+         },
++        target_shim_libs: {
++            cppflags: ["-DLD_SHIM_LIBS=\"%s\""],
++        },
+     },
+ 
+     cppflags: ["-Wold-style-cast"],
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index e9b527c1a..d37a4dded 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -699,6 +699,7 @@ enum walk_action_result_t : uint32_t {
+   kWalkSkip = 2
+ };
+ 
++#ifdef LD_SHIM_LIBS
+ static soinfo* find_library(android_namespace_t* ns,
+                            const char* name, int rtld_flags,
+                            const android_dlextinfo* extinfo,
+@@ -760,6 +761,7 @@ static void for_each_matching_shim(const char *const path, F action) {
+     action(one_pair->second.c_str());
+   }
+ }
++#endif
+ 
+ // This function walks down the tree of soinfo dependencies
+ // in breadth-first order and
+@@ -1178,7 +1180,9 @@ const char* fix_dt_needed(const char* dt_needed, const char* sopath __unused) {
+ 
+ template<typename F>
+ static void for_each_dt_needed(const ElfReader& elf_reader, F action) {
++#ifdef LD_SHIM_LIBS
+   for_each_matching_shim(elf_reader.name(), action);
++#endif
+   for (const ElfW(Dyn)* d = elf_reader.dynamic(); d->d_tag != DT_NULL; ++d) {
+     if (d->d_tag == DT_NEEDED) {
+       action(fix_dt_needed(elf_reader.get_string(d->d_un.d_val), elf_reader.name()));
+@@ -2073,7 +2077,9 @@ void* do_dlopen(const char* name, int flags,
+   }
+ 
+   ProtectedDataGuard guard;
++#ifdef LD_SHIM_LIBS
+   reset_g_active_shim_libs();
++#endif
+   soinfo* si = find_library(ns, translated_name, flags, extinfo, caller);
+   loading_trace.End();
+ 
+diff --git a/linker/linker.h b/linker/linker.h
+index 256c2d7db..a14537398 100644
+--- a/linker/linker.h
++++ b/linker/linker.h
+@@ -104,7 +104,9 @@ soinfo* get_libdl_info(const char* linker_path, const link_map& linker_map);
+ 
+ soinfo* find_containing_library(const void* p);
+ 
++#ifdef LD_SHIM_LIBS
+ void parse_LD_SHIM_LIBS(const char* path);
++#endif
+ 
+ void do_android_get_LD_LIBRARY_PATH(char*, size_t);
+ void do_android_update_LD_LIBRARY_PATH(const char* ld_library_path);
+diff --git a/linker/linker_main.cpp b/linker/linker_main.cpp
+index 2d88372b9..61a06695c 100644
+--- a/linker/linker_main.cpp
++++ b/linker/linker_main.cpp
+@@ -251,7 +251,6 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
+   // doesn't cost us anything.
+   const char* ldpath_env = nullptr;
+   const char* ldpreload_env = nullptr;
+-  const char* ldshim_libs_env = nullptr;
+   if (!getauxval(AT_SECURE)) {
+     ldpath_env = getenv("LD_LIBRARY_PATH");
+     if (ldpath_env != nullptr) {
+@@ -261,7 +260,6 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
+     if (ldpreload_env != nullptr) {
+       INFO("[ LD_PRELOAD set to \"%s\" ]", ldpreload_env);
+     }
+-    ldshim_libs_env = getenv("LD_SHIM_LIBS");
+   }
+ 
+   struct stat file_stat;
+@@ -336,7 +334,11 @@ static ElfW(Addr) __linker_init_post_relocation(KernelArgumentBlock& args) {
+   // Use LD_LIBRARY_PATH and LD_PRELOAD (but only if we aren't setuid/setgid).
+   parse_LD_LIBRARY_PATH(ldpath_env);
+   parse_LD_PRELOAD(ldpreload_env);
+-  parse_LD_SHIM_LIBS(ldshim_libs_env);
++
++#ifdef LD_SHIM_LIBS
++  // Read from TARGET_LD_SHIM_LIBS
++  parse_LD_SHIM_LIBS(LD_SHIM_LIBS);
++#endif
+ 
+   somain = si;
+ 
+-- 
+2.17.1
+

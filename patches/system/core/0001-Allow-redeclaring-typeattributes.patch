@@ -1,0 +1,35 @@
+From e03d4871ee502dbaf72b236bff875e7383241538 Mon Sep 17 00:00:00 2001
+From: Jeff Vander Stoep <jeffv@google.com>
+Date: Fri, 6 Oct 2017 17:03:45 -0700
+Subject: [PATCH] Allow redeclaring typeattributes
+
+Allows partners to add a new attribute definition to their public
+policy without causing a compatibility failure with the AOSP system
+image.
+
+Bug: 67092827
+Bug: 37915794
+Test: build and boot aosp_sailfish with a new type declared in public
+    policy.
+
+Change-Id: I3899065affb6806ae9080e1a7dfa5a6f368370f0
+---
+ init/init.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init/init.cpp b/init/init.cpp
+index f65bfe08c..9925ca6e0 100644
+--- a/init/init.cpp
++++ b/init/init.cpp
+@@ -822,7 +822,7 @@ static bool selinux_load_split_policy() {
+     const char* compile_args[] = {
+         "/system/bin/secilc",
+         plat_policy_cil_file,
+-        "-M", "true", "-G", "-N",
++        "-m", "-M", "true", "-G", "-N",
+         // Target the highest policy language version supported by the kernel
+         "-c", version_as_string.c_str(),
+         mapping_file.c_str(),
+-- 
+2.17.1
+

@@ -1,0 +1,28 @@
+From 1d83fda85375630413619680ba9250cd7cdd95e5 Mon Sep 17 00:00:00 2001
+From: Paul Keith <javelinanddart@gmail.com>
+Date: Thu, 15 Feb 2018 21:46:00 +0100
+Subject: [PATCH 1/2] soong_config: Add var for linker shim libs
+
+* To limit security exposure, we're forcing all devices
+  to define shim libs with a TARGET_LD_SHIM_LIBS
+
+Change-Id: Ic8722c42807429f2faa3546316c71c40533ce195
+---
+ core/soong_config.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/soong_config.mk b/core/soong_config.mk
+index cdd289675..b5d6a6b20 100644
+--- a/core/soong_config.mk
++++ b/core/soong_config.mk
+@@ -84,6 +84,7 @@ $(SOONG_VARIABLES): FORCE
+ 	echo '    "Override_rs_driver": "$(OVERRIDE_RS_DRIVER)",'; \
+ 	echo '    "Treble": $(if $(filter true,$(PRODUCT_FULL_TREBLE)),true,false),'; \
+ 	echo '    "Pdk": $(if $(filter true,$(TARGET_BUILD_PDK)),true,false),'; \
++	echo '    "Target_shim_libs": "$(TARGET_LD_SHIM_LIBS)",'; \
+ 	echo ''; \
+ 	echo '    "ArtUseReadBarrier": $(if $(filter false,$(PRODUCT_ART_USE_READ_BARRIER)),false,true),'; \
+ 	echo ''; \
+-- 
+2.17.1
+

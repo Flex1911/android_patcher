@@ -1,0 +1,35 @@
+From 6bea24a66e4aa25dc86b225f90f268072ad55345 Mon Sep 17 00:00:00 2001
+From: Stricted <info@stricted.net>
+Date: Sat, 17 Feb 2018 17:28:52 +0100
+Subject: [PATCH 2/2] soong_config: Replace space with colon on
+ TARGET_LD_SHIM_LIBS
+
+that way we can split the shim list logically into multiple lines like
+
+TARGET_LD_SHIM_LIBS := /system/bin/gpsd|/vendor/lib/libshim_gpsd.so \
+    /system/lib/libexynoscamera.so|/vendor/lib/libexynoscamera_shim.so \
+    /system/lib/libstagefright.so|/system/lib/libstagefright_shim.so
+
+to not have one single huge line
+
+Change-Id: Ice1411ee22b78da1dbf22eac412b9e4978acebdf
+---
+ core/soong_config.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/soong_config.mk b/core/soong_config.mk
+index b5d6a6b20..f699e171a 100644
+--- a/core/soong_config.mk
++++ b/core/soong_config.mk
+@@ -84,7 +84,7 @@ $(SOONG_VARIABLES): FORCE
+ 	echo '    "Override_rs_driver": "$(OVERRIDE_RS_DRIVER)",'; \
+ 	echo '    "Treble": $(if $(filter true,$(PRODUCT_FULL_TREBLE)),true,false),'; \
+ 	echo '    "Pdk": $(if $(filter true,$(TARGET_BUILD_PDK)),true,false),'; \
+-	echo '    "Target_shim_libs": "$(TARGET_LD_SHIM_LIBS)",'; \
++	echo '    "Target_shim_libs": "$(subst $(space),:,$(TARGET_LD_SHIM_LIBS))",'; \
+ 	echo ''; \
+ 	echo '    "ArtUseReadBarrier": $(if $(filter false,$(PRODUCT_ART_USE_READ_BARRIER)),false,true),'; \
+ 	echo ''; \
+-- 
+2.17.1
+
