@@ -1,7 +1,7 @@
 From 73baf053fa4fd7496311a2f2df363b0c7ee840f5 Mon Sep 17 00:00:00 2001
 From: Paul Keith <javelinanddart@gmail.com>
 Date: Thu, 15 Feb 2018 21:57:33 +0100
-Subject: [PATCH 2/2] linker: Move shims to TARGET_LD_SHIM_LIBS
+Subject: [PATCH 2/4] linker: Move shims to TARGET_LD_SHIM_LIBS
 
 * To reduce security exposure, let's set this at compile time,
   and block off all the code unless the board flag is set
