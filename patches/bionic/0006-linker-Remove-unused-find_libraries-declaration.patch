@@ -1,0 +1,32 @@
+From 43f2a4f539ba5da6c56a8cfc9dcd1572ed645f02 Mon Sep 17 00:00:00 2001
+From: Nich <nctrenco@gmail.com>
+Date: Tue, 5 Jun 2018 13:36:43 +0800
+Subject: [PATCH 6/7] linker: Remove unused find_libraries declaration
+
+commit "Inject shim libs as if they were DT_NEEDED." removed references
+to the forward declaration.
+
+Change-Id: I5f1aaa3a96f2af3edef07d4ea4e204b586424631
+---
+ linker/linker.cpp | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index 6e2177bc8..2b2ba156d 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -707,11 +707,6 @@ enum walk_action_result_t : uint32_t {
+ };
+ 
+ #ifdef LD_SHIM_LIBS
+-static soinfo* find_library(android_namespace_t* ns,
+-                           const char* name, int rtld_flags,
+-                           const android_dlextinfo* extinfo,
+-                           soinfo* needed_by);
+-
+ // g_ld_all_shim_libs maintains the references to memory as it used
+ // in the soinfo structures and in the g_active_shim_libs list.
+ static std::vector<ShimDescriptor> g_ld_all_shim_libs;
+-- 
+2.17.1
+

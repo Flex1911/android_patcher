@@ -1,4 +1,4 @@
-From 168a3e5753b9ce67ac5fabc90aa36fe71a685ca1 Mon Sep 17 00:00:00 2001
+From 22731ea23409e2caf1bbbfef42c05720298dfc1f Mon Sep 17 00:00:00 2001
 From: Paul Keith <javelinanddart@gmail.com>
 Date: Thu, 15 Feb 2018 21:46:00 +0100
 Subject: [PATCH] soong: Add var for linker shim libs
@@ -8,14 +8,25 @@ Subject: [PATCH] soong: Add var for linker shim libs
 
 Change-Id: Ic8722c42807429f2faa3546316c71c40533ce195
 ---
- android/variable.go | 2 ++
- 1 file changed, 2 insertions(+)
+ android/variable.go | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/android/variable.go b/android/variable.go
-index 77bdda2a..529c97a0 100644
+index 77bdda2a..7e1786e2 100644
 --- a/android/variable.go
 +++ b/android/variable.go
-@@ -167,6 +167,8 @@ type productVariables struct {
+@@ -84,6 +84,10 @@ type variableProperties struct {
+ 			Init_rc  []string
+ 		}
+ 
++		Target_shim_libs struct {
++			Cppflags []string
++		}
++
+ 		// eng is true for -eng builds, and can be used to turn on additionaly heavyweight debugging
+ 		// features.
+ 		Eng struct {
+@@ -167,6 +171,8 @@ type productVariables struct {
  	Override_rs_driver *string `json:",omitempty"`
  
  	DeviceKernelHeaders []string `json:",omitempty"`

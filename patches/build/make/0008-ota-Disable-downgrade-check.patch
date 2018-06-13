@@ -1,0 +1,32 @@
+From 8b1ca8ec34e755ac7b82ba7ce992b30b3cd74085 Mon Sep 17 00:00:00 2001
+From: Andrew Dodd <atd7@cornell.edu>
+Date: Mon, 2 Dec 2013 23:15:30 -0500
+Subject: [PATCH 08/10] ota: Disable downgrade check
+
+We want users to be able to downgrade their packages.
+
+Change-Id: I6bcbd4ee2a02640fe0855b0f1f197a02e914c927
+---
+ tools/releasetools/ota_from_target_files.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index 3f5d99283..5dfc27bfa 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -419,9 +419,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
+ 
+   metadata["ota-type"] = "BLOCK"
+ 
+-  ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
+-  ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
+-  script.AssertOlderBuild(ts, ts_text)
++  #ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
++  #ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
++  #script.AssertOlderBuild(ts, ts_text)
+ 
+   AppendAssertions(script, OPTIONS.info_dict, oem_dicts)
+   device_specific.FullOTA_Assertions()
+-- 
+2.17.1
+

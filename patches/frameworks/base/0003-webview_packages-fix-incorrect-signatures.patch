@@ -1,7 +1,7 @@
-From 8d96e159cd292760e37576f2a31dbd017b7ad013 Mon Sep 17 00:00:00 2001
+From 7ecc23ef7436679322c96232e2ef1e4b6915936e Mon Sep 17 00:00:00 2001
 From: Alex Naidis <alex.naidis@linux.com>
 Date: Wed, 14 Dec 2016 13:04:18 +0100
-Subject: [PATCH 3/3] webview_packages: fix incorrect signatures
+Subject: [PATCH 3/6] webview_packages: fix incorrect signatures
 
 Chrome Stable and Google Webview had incorrect
 signatures. That was due to an incorrect method

@@ -1,7 +1,7 @@
-From 3259260622afcd552d7ebbfce45b48602e3232b6 Mon Sep 17 00:00:00 2001
+From 711efa08835b950e6b29ed6153f85c7b224adbcc Mon Sep 17 00:00:00 2001
 From: Alin Jerpelea <alin.jerpelea@sonymobile.com>
 Date: Thu, 28 Sep 2017 21:16:21 +0200
-Subject: [PATCH 4/4] libc: add /odm/bin to the DEFPATH
+Subject: [PATCH 4/7] libc: add /odm/bin to the DEFPATH
 
 change is need to be able to share services on the odm partition
 

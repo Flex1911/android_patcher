@@ -1,7 +1,7 @@
-From 09f8a36a68f35be4f56c1576ab6f017638d76de2 Mon Sep 17 00:00:00 2001
+From 1085e44970709ba5762844c28747f90fd47d2996 Mon Sep 17 00:00:00 2001
 From: Alex Naidis <alex.naidis@linux.com>
 Date: Sun, 30 Oct 2016 21:47:07 +0100
-Subject: [PATCH 2/3] webview_packages: correct signature definition for Chrome
+Subject: [PATCH 2/6] webview_packages: correct signature definition for Chrome
  Stable
 
 This is an incremental fix onto this patch:

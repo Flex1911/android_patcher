@@ -1,0 +1,34 @@
+From 1193facfcff2a1fbee0fe7e25674b129f35f08b2 Mon Sep 17 00:00:00 2001
+From: Adrian DC <radian.dc@gmail.com>
+Date: Fri, 21 Apr 2017 19:50:56 +0200
+Subject: [PATCH 10/10] build: Rewrite the OTA package name
+
+ * Result example:
+    aosp-7.1-20161023-huashan-adriandc.zip
+
+Change-Id: I1e45432d9fe69443def1492956c8405e2c3f2635
+Signed-off-by: Adrian DC <radian.dc@gmail.com>
+---
+ core/Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/core/Makefile b/core/Makefile
+index 9cc5d26e0..6dd9078b5 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -2635,7 +2635,12 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) \
+ 	   $(BUILT_TARGET_FILES_PACKAGE) $@
+ 
+ .PHONY: otapackage
++
++TARGET_ROM_PACKAGE := $(PRODUCT_OUT)/aosp-$(PLATFORM_VERSION)-$(shell date +%Y%m%d)-$(TARGET_DEVICE)-$(USER).zip
+ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
++	   $(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(TARGET_ROM_PACKAGE)
++	   $(hide) $(MD5SUM) $(TARGET_ROM_PACKAGE) > $(TARGET_ROM_PACKAGE).md5sum
++	   @echo "OTA Package: " $(TARGET_ROM_PACKAGE) >&2
+ 
+ endif    # build_ota_package
+ 
+-- 
+2.17.1
+

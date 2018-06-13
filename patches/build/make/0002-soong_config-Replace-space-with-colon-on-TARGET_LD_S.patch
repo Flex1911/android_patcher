@@ -1,7 +1,7 @@
-From 6bea24a66e4aa25dc86b225f90f268072ad55345 Mon Sep 17 00:00:00 2001
+From ff32847502f300a57b24f1373325bb3fff71bba9 Mon Sep 17 00:00:00 2001
 From: Stricted <info@stricted.net>
 Date: Sat, 17 Feb 2018 17:28:52 +0100
-Subject: [PATCH 2/2] soong_config: Replace space with colon on
+Subject: [PATCH 02/10] soong_config: Replace space with colon on
  TARGET_LD_SHIM_LIBS
 
 that way we can split the shim list logically into multiple lines like

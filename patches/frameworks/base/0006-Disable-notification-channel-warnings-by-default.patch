@@ -1,0 +1,32 @@
+From 92775eefdb971d110f19cb24f3c78c5a471b3317 Mon Sep 17 00:00:00 2001
+From: Bruno Martins <bgcngm@gmail.com>
+Date: Fri, 10 Nov 2017 15:00:17 +0000
+Subject: [PATCH 6/6] Disable notification channel warnings by default
+
+ * Since we usually ship "userdebug" builds, it is better to globally
+   disable the toast because we are not in control of third-party apps
+   that haven't been properly aligned with new Oreo requirements.
+
+ * Leave it enabled by default only for "eng" builds.
+
+Change-Id: If0c74bcd03de2b664794e5855c2aaceb5c633b6c
+---
+ .../android/server/notification/NotificationManagerService.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/core/java/com/android/server/notification/NotificationManagerService.java b/services/core/java/com/android/server/notification/NotificationManagerService.java
+index 566e5f52625..cba5228cf35 100644
+--- a/services/core/java/com/android/server/notification/NotificationManagerService.java
++++ b/services/core/java/com/android/server/notification/NotificationManagerService.java
+@@ -3552,7 +3552,7 @@ public class NotificationManagerService extends SystemService {
+     }
+ 
+     private void doChannelWarningToast(CharSequence toastText) {
+-        final int defaultWarningEnabled = Build.IS_DEBUGGABLE ? 1 : 0;
++        final int defaultWarningEnabled = Build.TYPE.equals("eng") ? 1 : 0;
+         final boolean warningEnabled = Settings.Global.getInt(getContext().getContentResolver(),
+                 Settings.Global.SHOW_NOTIFICATION_CHANNEL_WARNINGS, defaultWarningEnabled) != 0;
+         if (warningEnabled) {
+-- 
+2.17.1
+

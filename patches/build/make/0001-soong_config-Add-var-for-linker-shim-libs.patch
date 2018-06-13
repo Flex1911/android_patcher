@@ -1,7 +1,7 @@
-From 1d83fda85375630413619680ba9250cd7cdd95e5 Mon Sep 17 00:00:00 2001
+From b2174f92d640f8c1c3c419d358012cd0eb4e5163 Mon Sep 17 00:00:00 2001
 From: Paul Keith <javelinanddart@gmail.com>
 Date: Thu, 15 Feb 2018 21:46:00 +0100
-Subject: [PATCH 1/2] soong_config: Add var for linker shim libs
+Subject: [PATCH 01/10] soong_config: Add var for linker shim libs
 
 * To limit security exposure, we're forcing all devices
   to define shim libs with a TARGET_LD_SHIM_LIBS

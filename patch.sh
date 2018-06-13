@@ -11,6 +11,7 @@ REPOSITORIES=(
     'frameworks/native'
     'frameworks/opt/telephony'
     'packages/apps/Camera2'
+    'packages/apps/DeskClock'
     'system/core'
     'system/sepolicy'
 )

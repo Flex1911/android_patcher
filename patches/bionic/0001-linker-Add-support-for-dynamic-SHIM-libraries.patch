@@ -1,7 +1,7 @@
-From 3e8664fc829583700085ff2648d6d736683a866e Mon Sep 17 00:00:00 2001
+From e3dab6fef3dec41c1111140d2ebea9ae71544e13 Mon Sep 17 00:00:00 2001
 From: "Christopher R. Palmer" <crpalmer@gmail.com>
 Date: Sat, 8 Apr 2017 22:40:01 +0200
-Subject: [PATCH 1/4] linker: Add support for dynamic SHIM libraries
+Subject: [PATCH 1/7] linker: Add support for dynamic SHIM libraries
 
 Add a new environment variable
 

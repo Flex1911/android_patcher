@@ -1,0 +1,26 @@
+From ddb13ba3ff4fcd7c2ffdcc4cd05f5e988252e6d4 Mon Sep 17 00:00:00 2001
+From: Demon000 <demonsingur@gmail.com>
+Date: Sat, 16 Sep 2017 00:44:49 +0300
+Subject: [PATCH 2/3] DeskClock: start foreground service for alarms
+
+Change-Id: I8a539acf9a4422c4bf8d53b2239dd531fd3f655a
+---
+ src/com/android/deskclock/alarms/AlarmStateManager.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/com/android/deskclock/alarms/AlarmStateManager.java b/src/com/android/deskclock/alarms/AlarmStateManager.java
+index f0a8db56f..ee38ecb52 100644
+--- a/src/com/android/deskclock/alarms/AlarmStateManager.java
++++ b/src/com/android/deskclock/alarms/AlarmStateManager.java
+@@ -1006,7 +1006,7 @@ public final class AlarmStateManager extends BroadcastReceiver {
+                     createStateChangeIntent(context, ALARM_MANAGER_TAG, instance, newState);
+             // Treat alarm state change as high priority, use foreground broadcasts
+             stateChangeIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+-            PendingIntent pendingIntent = PendingIntent.getService(context, instance.hashCode(),
++            PendingIntent pendingIntent = PendingIntent.getForegroundService(context, instance.hashCode(),
+                     stateChangeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+ 
+             final AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+-- 
+2.17.1
+

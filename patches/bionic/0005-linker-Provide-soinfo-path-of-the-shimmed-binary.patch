@@ -1,0 +1,114 @@
+From d0103abf9850a6f68059aae624df61a03ec2d940 Mon Sep 17 00:00:00 2001
+From: Nich <nctrenco@gmail.com>
+Date: Fri, 8 Jun 2018 09:48:17 +0800
+Subject: [PATCH 5/7] linker: Provide soinfo path of the shimmed binary
+
+This is a forward port of part of the original change that was missed out
+since the initial port of the shim logic to O.
+
+Change-Id: I1f7ff98472cfef5cb2d2bcb303082784898cd0c6
+---
+ linker/linker.cpp      | 19 ++++++-------------
+ linker/linker_soinfo.h | 20 ++++++++++++++++++++
+ 2 files changed, 26 insertions(+), 13 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index d01f08f66..6e2177bc8 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -714,17 +714,18 @@ static soinfo* find_library(android_namespace_t* ns,
+ 
+ // g_ld_all_shim_libs maintains the references to memory as it used
+ // in the soinfo structures and in the g_active_shim_libs list.
+-
+-typedef std::pair<std::string, std::string> ShimDescriptor;
+ static std::vector<ShimDescriptor> g_ld_all_shim_libs;
+ 
+ // g_active_shim_libs are all shim libs that are still eligible
+ // to be loaded.  We must remove a shim lib from the list before
+ // we load the library to avoid recursive loops (load shim libA
+ // for libB where libA also links against libB).
+-
+ static linked_list_t<const ShimDescriptor> g_active_shim_libs;
+ 
++// matched_pairs are shim libs that load over their corresponding
++// target libraries/executables, which are DT_NEEDED.
++std::vector<const ShimDescriptor *> matched_pairs;
++
+ static void reset_g_active_shim_libs(void) {
+   g_active_shim_libs.clear();
+   for (const auto& pair : g_ld_all_shim_libs) {
+@@ -747,26 +748,18 @@ void parse_LD_SHIM_LIBS(const char* path) {
+   reset_g_active_shim_libs();
+ }
+ 
+-template<typename F>
+-static void for_each_matching_shim(const char *const path, F action) {
+-  if (path == nullptr) return;
++void shim_matching_pairs(const char *const path) {
+   INFO("Finding shim libs for \"%s\"\n", path);
+-  std::vector<const ShimDescriptor *> matched;
+ 
+   g_active_shim_libs.for_each([&](const ShimDescriptor *a_pair) {
+     if (a_pair->first == path) {
+-      matched.push_back(a_pair);
++      matched_pairs.push_back(a_pair);
+     }
+   });
+ 
+   g_active_shim_libs.remove_if([&](const ShimDescriptor *a_pair) {
+     return a_pair->first == path;
+   });
+-
+-  for (const auto& one_pair : matched) {
+-    INFO("Injecting shim lib \"%s\" as needed for %s", one_pair->second.c_str(), path);
+-    action(one_pair->second.c_str());
+-  }
+ }
+ #endif
+ 
+diff --git a/linker/linker_soinfo.h b/linker/linker_soinfo.h
+index 29b5c2be1..c2398adff 100644
+--- a/linker/linker_soinfo.h
++++ b/linker/linker_soinfo.h
+@@ -33,6 +33,7 @@
+ 
+ #include <string>
+ 
++#include "linker_debug.h"
+ #include "linker_namespaces.h"
+ 
+ #define FLAG_LINKED           0x00000001
+@@ -343,10 +344,29 @@ struct soinfo {
+ // This function is used by dlvsym() to calculate hash of sym_ver
+ uint32_t calculate_elf_hash(const char* name);
+ 
++#ifdef LD_SHIM_LIBS
++typedef std::pair<std::string, std::string> ShimDescriptor;
++extern std::vector<const ShimDescriptor *> matched_pairs;
++void shim_matching_pairs(const char *const path);
++
++template<typename F>
++void for_each_matching_shim(const char *const path, F action) {
++  if (path == nullptr) return;
++  shim_matching_pairs(path);
++  for (const auto& one_pair : matched_pairs) {
++    INFO("Injecting shim lib \"%s\" as needed for %s", one_pair->second.c_str(), path);
++    action(one_pair->second.c_str());
++  }
++}
++#endif
++
+ const char* fix_dt_needed(const char* dt_needed, const char* sopath);
+ 
+ template<typename F>
+ void for_each_dt_needed(const soinfo* si, F action) {
++#ifdef LD_SHIM_LIBS
++  for_each_matching_shim(si->get_realpath(), action);
++#endif
+   for (const ElfW(Dyn)* d = si->dynamic; d->d_tag != DT_NULL; ++d) {
+     if (d->d_tag == DT_NEEDED) {
+       action(fix_dt_needed(si->get_string(d->d_un.d_val), si->get_realpath()));
+-- 
+2.17.1
+

@@ -1,7 +1,7 @@
-From ccec5009b337a5f679af129dbfdec2f6d0e1cab4 Mon Sep 17 00:00:00 2001
+From 0b5d9d922accdade97961aabdce4c9515db21656 Mon Sep 17 00:00:00 2001
 From: Alin Jerpelea <alin.jerpelea@sonymobile.com>
 Date: Mon, 25 Sep 2017 17:47:49 +0200
-Subject: [PATCH 3/4] linker: add support for odm partition
+Subject: [PATCH 3/7] linker: add support for odm partition
 
 If libraries are on the odm partition they will fail to load
 This patch adds the odm path as a search path for linker.
